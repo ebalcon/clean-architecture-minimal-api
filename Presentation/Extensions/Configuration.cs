@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.Text;
 
 namespace Presentation.Extensions
@@ -17,6 +18,7 @@ namespace Presentation.Extensions
             var configuration = builder.Configuration;
 
             builder.Services.AddDbContext<SqlContext>(options => options.UseSqlServer(configuration.GetConnectionString("Default")));
+            builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -46,6 +48,7 @@ namespace Presentation.Extensions
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseSerilogRequestLogging();
             app.UseHttpsRedirection();
         }
     }
